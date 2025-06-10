@@ -6,18 +6,78 @@
     <title>Rate</title> 
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        * {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+        
+        .site-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .container {
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .nav-button {
+            position: relative;
+            overflow: hidden;
+            background: white;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+
+        .nav-button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
         .star-rating {
             display: inline-flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.5rem;
         }
         
         .star {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             cursor: pointer;
             position: relative;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            color: #E2E8F0;  /* Light gray color for inactive stars */
+            transition: all 0.2s ease;
+            color: #e2e8f0;
+            user-select: none;
         }
 
         .star::before {
@@ -31,10 +91,10 @@
             content: '★';
             position: absolute;
             left: 0;
-            color: #FCD34D;  /* Warm yellow color for active stars */
+            color: #3b82f6;
             opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.9);
+            transition: all 0.2s ease;
         }
 
         .star.active::after {
@@ -44,210 +104,319 @@
 
         .star.hover::after {
             opacity: 0.7;
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .star:focus {
             outline: none;
         }
 
-        /* Rating value styling */
-        [id$="RatingValue"] {
+        .rating-card {
+            background: white;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .rating-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .search-input {
+            border: 2px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .rating-value {
             font-size: 0.875rem;
-            font-weight: 500;
-            color: #6B7280;
-            min-width: 2rem;
-            text-align: left;
+            font-weight: 600;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .icon-wrapper {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .search-results {
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .search-result-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .search-result-item:hover {
+            background: #f8fafc;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .footer-link {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: currentColor;
+            transition: width 0.3s ease;
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
         }
 
         /* Responsive adjustments */
         @media (max-width: 640px) {
             .star {
-                font-size: 1.5rem;
+                font-size: 1.25rem;
             }
             .star-rating {
-                gap: 0.5rem;
+                gap: 0.25rem;
             }
-        }
-    </style>
-
-    <style>
-        body {
-            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-        }
-        
-        .site-header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 0;
-            margin-bottom: 2rem;
-        }
-
-        .container {
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .nav-button {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .nav-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
     </style>
 </head>
 
-<body class="font-sans min-h-screen">
+<body class="min-h-screen">
     <header class="site-header">
-        <div class="text-center">
-            <h1 class="text-white font-bold text-4xl md:text-5xl">
+        <div class="pl-7 py-6">
+            <h1 class="text-gray-900 font-bold text-3xl md:text-4xl tracking-tight">
                 RateYourProfessor
-                <span class="block text-lg text-blue-200 mt-2 font-normal">Vellore</span>
+                <span class="block text-sm text-gray-500 mt-1 font-medium tracking-wide uppercase">Vellore Institute</span>
             </h1>
         </div>
     </header>
     
-
-    <div class="flex flex-nowrap container mt-10 mx-auto max-w-2xl px-4">
-        <a href="/professors/" class="nav-button w-1/2 m-3 bg-white bg-opacity-95 p-6 rounded-lg shadow-lg text-center hover:bg-green-500 transition-all duration-300 ease-in-out">
-            <button class="font-bold">Reviews</button>
+    <div class="flex flex-nowrap container mt-8 mx-auto max-w-lg px-4">
+        <a href="/professors/" class="nav-button w-1/2 mr-2 p-4 rounded-xl text-center">
+            <span class="font-medium text-sm">Reviews</span>
         </a>
-
-        <a class="nav-button w-1/2 m-3 bg-yellow-200 bg-opacity-95 p-6 rounded-lg shadow-lg text-center hover:bg-green-500 transition-all duration-300 ease-in-out">
-            <button class="font-bold">Rate</button>
+        <a class="nav-button active w-1/2 ml-2 p-4 rounded-xl text-center">
+            <span class="font-medium text-sm">Rate Professor</span>
         </a>
     </div>
 
-    <div class="flex justify-center items-start min-h-screen p-5">
-        <div class="container bg-white bg-opacity-95 backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-2xl transform transition-all duration-300 hover:scale-2xl">
-            <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Search a professor 🔍</h1>
-            
-            <input type="text" id="searchInput" placeholder="Type a name to search..." autocomplete="off" class="w-full p-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 hover:border-blue-300">
-            
-            <div id="searchResults" class="search-results max-h-52 overflow-y-auto border border-gray-200 rounded-md mb-6 bg-gray-50 hidden"></div>
-    
-            <div class="mb-6">
-                <label for="professorDropdown" class="block text-sm font-medium text-gray-700 my-2">Or select from all professors:</label>
-                <select id="professorDropdown" class="w-full p-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none cursor-pointer hover:border-blue-300 transition-all duration-300">
-                    <option value="">-- Select a Professor --</option>
-                </select>
-                <div id="dropdownLoading" class="text-sm text-gray-500 mt-1 hidden">Loading professors...</div>
-            </div>
-
-            <div id="selectedNameData" class="selected-data border-t-2 border-blue-800 pt-6 mt-6 hidden">
-                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Rate the selected Professor:</h2>
-                <p class="mb-2 text-gray-600">Name: <span id="personNameDisplay" class="font-bold">-</span></p>
-
-                <!-- Teaching Rating Box -->
-                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 mb-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-blue-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <label for="teachingRating" class="text-xl font-medium text-gray-700 flex items-center">
-                            <span class="text-2xl mr-2">🎓</span> 
-                            Teaching Quality
-                        </label>
-                        <span id="teachingRatingValue" class="px-3 py-1 rounded-full bg-white bg-opacity-50 text-blue-600 font-medium">(0)</span>
-                    </div>
-                    <div class="flex items-center bg-white bg-opacity-50 p-3 rounded-lg">
-                        <div class="star-rating" data-rating-input="teachingRating">
-                            <span class="star" data-value="1">&#9734;</span>
-                            <span class="star" data-value="2">&#9734;</span>
-                            <span class="star" data-value="3">&#9734;</span>
-                            <span class="star" data-value="4">&#9734;</span>
-                            <span class="star" data-value="5">&#9734;</span>
-                        </div>
-                        <input type="hidden" id="teachingRating" name="teaching" value="">
-                    </div>
-                </div>
-
-                <!-- Evaluation Rating Box -->
-                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-6 mb-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-yellow-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <label for="evaluationRating" class="text-xl font-medium text-gray-700 flex items-center">
-                            <span class="text-2xl mr-2">📑</span>
-                            Evaluation Pattern
-                        </label>
-                        <span id="evaluationRatingValue" class="px-3 py-1 rounded-full bg-white bg-opacity-50 text-yellow-600 font-medium">(0)</span>
-                    </div>
-                    <div class="flex items-center bg-white bg-opacity-50 p-3 rounded-lg">
-                        <div class="star-rating" data-rating-input="evaluationRating">
-                            <span class="star" data-value="1">&#9734;</span>
-                            <span class="star" data-value="2">&#9734;</span>
-                            <span class="star" data-value="3">&#9734;</span>
-                            <span class="star" data-value="4">&#9734;</span>
-                            <span class="star" data-value="5">&#9734;</span>
-                        </div>
-                        <input type="hidden" id="evaluationRating" name="evaluation" value="">
-                    </div>
-                </div>
-
-                <!-- Behaviour Rating Box -->
-                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 mb-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-green-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <label for="behaviourRating" class="text-xl font-medium text-gray-700 flex items-center">
-                            <span class="text-2xl mr-2">😊</span>
-                            Behaviour
-                        </label>
-                        <span id="behaviourRatingValue" class="px-3 py-1 rounded-full bg-white bg-opacity-50 text-green-600 font-medium">(0)</span>
-                    </div>
-                    <div class="flex items-center bg-white bg-opacity-50 p-3 rounded-lg">
-                        <div class="star-rating" data-rating-input="behaviourRating">
-                            <span class="star" data-value="1">&#9734;</span>
-                            <span class="star" data-value="2">&#9734;</span>
-                            <span class="star" data-value="3">&#9734;</span>
-                            <span class="star" data-value="4">&#9734;</span>
-                            <span class="star" data-value="5">&#9734;</span>
-                        </div>
-                        <input type="hidden" id="behaviourRating" name="behaviour" value="">
-                    </div>
-                </div>
-
-                <!-- Internals Rating Box -->
-                <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 mb-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-pink-200">
-                    <div class="flex items-center justify-between mb-3">
-                        <label for="internalsRating" class="text-xl font-medium text-gray-700 flex items-center">
-                            <span class="text-2xl mr-2">🏅</span>
-                            Internal Marks
-                        </label>
-                        <span id="internalsRatingValue" class="px-3 py-1 rounded-full bg-white bg-opacity-50 text-pink-600 font-medium">(0)</span>
-                    </div>
-                    <div class="flex items-center bg-white bg-opacity-50 p-3 rounded-lg">
-                        <div class="star-rating" data-rating-input="internalsRating">
-                            <span class="star" data-value="1">&#9734;</span>
-                            <span class="star" data-value="2">&#9734;</span>
-                            <span class="star" data-value="3">&#9734;</span>
-                            <span class="star" data-value="4">&#9734;</span>
-                            <span class="star" data-value="5">&#9734;</span>
-                        </div>
-                        <input type="hidden" id="internalsRating" name="internals" value="">
-                    </div>
-                </div>
-
+    <div class="flex justify-center items-start min-h-screen p-4 pt-8">
+        <div class="glass-card container p-8 rounded-2xl shadow-xl w-full max-w-2xl">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Find Your Professor</h2>
+                <p class="text-gray-600 text-sm">Search or select a professor to rate</p>
             </div>
             
-            <div class="text-center mt-6">
-                <button id="submitButton" class="text-white font-semibold px-8 py-4 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed hidden transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
-                    SUBMIT YOUR RATING
+            <div class="space-y-6">
+                <div>
+                    <input type="text" 
+                           id="searchInput" 
+                           placeholder="Search professor name..." 
+                           autocomplete="off" 
+                           class="search-input w-full p-4 rounded-xl text-base focus:outline-none placeholder-gray-400 bg-white">
+                    
+                    <div id="searchResults" class="search-results mt-2 max-h-48 overflow-y-auto hidden"></div>
+                </div>
+
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-3 bg-white text-gray-500">or</span>
+                    </div>
+                </div>
+
+                <div>
+                    <select id="professorDropdown" 
+                            class="w-full p-4 border-2 border-gray-100 rounded-xl text-base focus:outline-none focus:border-blue-500 bg-white appearance-none cursor-pointer transition-all duration-300">
+                        <option value="">Select from all professors</option>
+                    </select>
+                    <div id="dropdownLoading" class="text-sm text-gray-500 mt-2 hidden">Loading professors...</div>
+                </div>
+            </div>
+
+            <div id="selectedNameData" class="mt-8 pt-8 border-t border-gray-100 hidden">
+                <div class="mb-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-1">Rate Professor</h3>
+                    <p class="text-gray-600">Professor: <span id="personNameDisplay" class="font-medium text-gray-900">-</span></p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Teaching Quality -->
+                    <div class="rating-card rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="icon-wrapper">🎓</div>
+                                <span class="text-base font-medium text-gray-900">Teaching Quality</span>
+                            </div>
+                            <span id="teachingRatingValue" class="rating-value">0/5</span>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="star-rating" data-rating-input="teachingRating">
+                                <span class="star" data-value="1">&#9734;</span>
+                                <span class="star" data-value="2">&#9734;</span>
+                                <span class="star" data-value="3">&#9734;</span>
+                                <span class="star" data-value="4">&#9734;</span>
+                                <span class="star" data-value="5">&#9734;</span>
+                            </div>
+                            <input type="hidden" id="teachingRating" name="teaching" value="">
+                        </div>
+                    </div>
+
+                    <!-- Evaluation Pattern -->
+                    <div class="rating-card rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="icon-wrapper">📝</div>
+                                <span class="text-base font-medium text-gray-900">Evaluation Pattern</span>
+                            </div>
+                            <span id="evaluationRatingValue" class="rating-value">0/5</span>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="star-rating" data-rating-input="evaluationRating">
+                                <span class="star" data-value="1">&#9734;</span>
+                                <span class="star" data-value="2">&#9734;</span>
+                                <span class="star" data-value="3">&#9734;</span>
+                                <span class="star" data-value="4">&#9734;</span>
+                                <span class="star" data-value="5">&#9734;</span>
+                            </div>
+                            <input type="hidden" id="evaluationRating" name="evaluation" value="">
+                        </div>
+                    </div>
+
+                    <!-- Behaviour -->
+                    <div class="rating-card rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="icon-wrapper">😊</div>
+                                <span class="text-base font-medium text-gray-900">Behaviour</span>
+                            </div>
+                            <span id="behaviourRatingValue" class="rating-value">0/5</span>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="star-rating" data-rating-input="behaviourRating">
+                                <span class="star" data-value="1">&#9734;</span>
+                                <span class="star" data-value="2">&#9734;</span>
+                                <span class="star" data-value="3">&#9734;</span>
+                                <span class="star" data-value="4">&#9734;</span>
+                                <span class="star" data-value="5">&#9734;</span>
+                            </div>
+                            <input type="hidden" id="behaviourRating" name="behaviour" value="">
+                        </div>
+                    </div>
+
+                    <!-- Internal Marks -->
+                    <div class="rating-card rounded-xl p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="icon-wrapper">🏆</div>
+                                <span class="text-base font-medium text-gray-900">Internal Marks</span>
+                            </div>
+                            <span id="internalsRatingValue" class="rating-value">0/5</span>
+                        </div>
+                        <div class="flex justify-center">
+                            <div class="star-rating" data-rating-input="internalsRating">
+                                <span class="star" data-value="1">&#9734;</span>
+                                <span class="star" data-value="2">&#9734;</span>
+                                <span class="star" data-value="3">&#9734;</span>
+                                <span class="star" data-value="4">&#9734;</span>
+                                <span class="star" data-value="5">&#9734;</span>
+                            </div>
+                            <input type="hidden" id="internalsRating" name="internals" value="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button id="submitButton" 
+                        class="btn-primary text-white font-semibold px-8 py-4 rounded-xl disabled:bg-gray-300 disabled:cursor-not-allowed hidden">
+                    Submit Rating
                 </button>
             </div>
             
-            <div id="messageContainer" class="mt-4 hidden">
-                <div id="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded hidden">
-                    Rating submitted successfully!
+            <div id="messageContainer" class="mt-6 hidden">
+                <div id="successMessage" class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl hidden">
+                    ✓ Rating submitted successfully!
                 </div>
-                <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded hidden">
+                <div id="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl hidden">
                 </div>
             </div>
         </div>
     </div>
+
+    <footer class="w-full bg-white bg-opacity-60 backdrop-blur-md py-6 mt-16 border-t border-gray-100">
+        <div class="container mx-auto text-center">
+            <p class="text-sm text-gray-600">
+                Created by 
+                <a href="https://www.linkedin.com/in/harshvardhan-sharma-bb2708286" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="footer-link font-medium text-blue-600 hover:text-blue-700 transition-colors duration-300">
+                    Harshvardhan Sharma
+                </a>
+            </p>
+        </div>
+    </footer>
 
     <script>
     const searchInput      = document.getElementById("searchInput");
@@ -547,19 +716,8 @@
 
     </script>
 
-    <div class="w-full bg-white bg-opacity-10 backdrop-blur-md py-4">
-        <div class="container mx-auto text-center text-white">
-            <p class="text-sm">
-                Made By 
-                <a href="https://www.linkedin.com/in/harshvardhan-sharma-bb2708286" 
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="font-medium text-blue-200 hover:text-blue-300 transition-colors duration-300 border-b border-blue-200 hover:border-blue-300">
-                    Harshvardhan Sharma 
-                </a>
-            </p>
-        </div>
-    </div>
+    
 
 </body>
 </html>
+

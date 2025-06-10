@@ -54,7 +54,7 @@ def search_professors(request):
     
     all_names = list(Professor.objects.values_list('name', flat=True))
     # Using RapidFuzz for fuzzy matching
-    matches = process.extract(query, all_names, scorer=fuzz.WRatio, limit=10)
+    matches = process.extract(query, all_names, scorer=fuzz.WRatio, limit=5, score_cutoff=75)
 
     suggestions = [name for name, score, _ in matches if score > 60] 
 
