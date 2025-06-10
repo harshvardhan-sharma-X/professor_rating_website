@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews</title> 
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="font-sans bg-gray-800">
+    <div class="text-center m-5">
+        <h1 class="text-white font-bold text-4xl">RateYourProfessor</h1>
+    </div>
+
+    <div class="flex flex-nowrap container mt-10 mx-auto"> 
+        <a class="w-1/2 m-3 bg-yellow-200 p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+            <button class="font-bold">Reviews</button> 
+        </a>
+
+        <a href="/professors/rate/" class="w-1/2 m-3 bg-white p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+            <button class="font-bold">Rate</button>
+        </a>
+    </div> 
+
+    <div class="flex justify-center items-start min-h-screen p-5">
+        <div class="container bg-white p-8 rounded-lg shadow-md w-full max-w-3xl">
+            <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Search a professor 🔍</h1>
+
+            <input type="text" id="searchInput" placeholder="Type a name to search..." autocomplete="off" class="w-full p-3 mb-4 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <div id="searchResults" class="search-results max-h-52 overflow-y-auto border border-gray-200 rounded-md mb-4 bg-gray-50 hidden"></div>
+    
+            <div class="mb-6">
+                <label for="professorDropdown" class="block text-sm font-medium text-gray-700 mb-2">Or select from all professors:</label>
+                <select id="professorDropdown" class="w-full p-3 border text-gray-500 border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">-- Select a Professor --</option>
+                </select>
+                <div id="dropdownLoading" class="text-sm text-gray-500 mt-1 hidden">Loading professors...</div>
+            </div>
+
+            <div id="selectedNameData" class="selected-data border-t-2 border-blue-800 pt-6 mt-6 hidden">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Selected Professor's Ratings:</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <p class="mb-2 text-gray-600">Name: <span id="professorName" class="font-semibold text-gray-800">-</span></p>
+                        <p class="mb-2 text-gray-600">Total Ratings: <span id="totalRatings" class="font-semibold text-blue-600">0</span></p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-blue-800" id="overallRating">0.0</div>
+                        <div class="text-sm text-gray-600">Overall Rating</div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between bg-green-50 p-3 rounded-lg">
+                            <span class="text-gray-700">🎓 Teaching:</span>
+                            <div class="flex items-center flex-shrink-0 text-xl" id="teachingStars"></div>
+                            <span id="teachingRating" class="font-semibold text-green-700 ml-2">0.0</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between bg-yellow-50 p-3 rounded-lg">
+                            <span class="text-gray-700">📑 Evaluation:</span>
+                            <div class="flex items-center flex-shrink-0 text-xl" id="evaluationStars"></div>
+                            <span id="evaluationRating" class="font-semibold text-yellow-700 ml-2">0.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between bg-purple-50 p-3 rounded-lg">
+                            <span class="text-gray-700">😊 Behaviour:</span>
+                            <div class="flex items-center flex-shrink-0 text-xl" id="behaviourStars"></div>
+                            <span id="behaviourRating" class="font-semibold text-purple-700 ml-2">0.0</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between bg-orange-50 p-3 rounded-lg">
+                            <span class="text-gray-700">🏅 Internals:</span>
+                            <div class="flex items-center flex-shrink-0 text-xl" id="internalsStars"></div>
+                            <span id="internalsRating" class="font-semibold text-orange-700 ml-2">0.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 hidden">
+            </div>
+
+            <div id="loadingMessage" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mt-4 hidden">
+                Loading ratings...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("searchInput");
+        const searchResults = document.getElementById("searchResults");
+        const professorDropdown = document.getElementById("professorDropdown");
+        const dropdownLoading = document.getElementById("dropdownLoading");
+        const selectedNameData = document.getElementById("selectedNameData");
+        const errorMessage = document.getElementById("errorMessage");
+        const loadingMessage = document.getElementById("loadingMessage");
+        
+        let searchTimeout = null;
+
+        // Load all professors for dropdown on page load
+        async function loadAllProfessors() {
+            try {
+                dropdownLoading.classList.remove("hidden");
+                const response = await fetch('/professors/all/');
+                const data = await response.json();
+                
+                if (data.professors && data.professors.length > 0) {
+                    // Clear existing options except the first one
+                    professorDropdown.innerHTML = '<option value="">-- Select a Professor --</option>';
+                    
+                    // Sort professors alphabetically
+                    data.professors.sort();
+                    
+                    // Add each professor as an option
+                    data.professors.forEach(professor => {
+                        const option = document.createElement('option');
+                        option.value = professor;
+                        option.textContent = professor;
+                        professorDropdown.appendChild(option);
+                    });
+                } else {
+                    professorDropdown.innerHTML = '<option value="">-- No Professors Found --</option>';
+                }
+            } catch (error) {
+                console.error('Error loading professors:', error);
+                professorDropdown.innerHTML = '<option value="">-- Error Loading Professors --</option>';
+            } finally {
+                dropdownLoading.classList.add("hidden");
+            }
+        }
+
+        // Handle dropdown selection
+        professorDropdown.addEventListener('change', (e) => {
+            const selectedProfessor = e.target.value;
+            if (selectedProfessor) {
+                selectProfessor(selectedProfessor);
+                // Clear search input when using dropdown
+                searchInput.value = '';
+                searchResults.classList.add("hidden");
+            } else {
+                // Hide professor data when no selection
+                selectedNameData.classList.add("hidden");
+                errorMessage.classList.add("hidden");
+            }
+        });
+
+        // Generate star rating display
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<span class="text-yellow-400">★</span>';
+            }
+            if (hasHalfStar) {
+                stars += '<span class="text-yellow-400">☆</span>';
+            }
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<span class="text-gray-300">☆</span>';
+            }
+            return stars;
+        }
+
+        // Auto-suggestion functionality
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim();
+            
+            // Clear dropdown selection when typing in search
+            if (query.length > 0) {
+                professorDropdown.value = '';
+            }
+            
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            if (query.length < 2) {
+                searchResults.classList.add("hidden");
+                selectedNameData.classList.add("hidden");
+                errorMessage.classList.add("hidden");
+                return;
+            }
+
+            // Debounce search requests
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/professors/search/?q=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        searchResults.innerHTML = '';
+                        data.suggestions.forEach(suggestion => {
+                            const div = document.createElement('div');
+                            div.className = 'py-2 px-3 hover:bg-blue-100 cursor-pointer border-b border-gray-200';
+                            div.textContent = suggestion;
+                            div.addEventListener('click', () => {
+                                selectProfessor(suggestion);
+                                professorDropdown.value = suggestion; // Sync dropdown
+                            });
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.classList.remove("hidden");
+                    } else {
+                        searchResults.innerHTML = '<div class="py-2 px-3 text-gray-500">No professors found</div>';
+                        searchResults.classList.remove("hidden");
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    searchResults.classList.add("hidden");
+                }
+            }, 300);
+        });
+
+        async function selectProfessor(name) {
+            searchResults.classList.add("hidden");
+            searchInput.value = "";
+            selectedNameData.classList.add("hidden");
+            errorMessage.classList.add("hidden");
+            loadingMessage.classList.remove("hidden");
+
+            try {
+                const response = await fetch(`/professors/ratings/?name=${encodeURIComponent(name)}`);
+                const data = await response.json();
+                
+                loadingMessage.classList.add("hidden");
+                
+                if (response.ok) {
+                    // Display professor data
+                    document.getElementById("professorName").textContent = data.name;
+                    document.getElementById("totalRatings").textContent = data.total_ratings;
+                    document.getElementById("overallRating").textContent = data.ratings.overall;
+                    
+                    // Display individual ratings
+                    document.getElementById("teachingRating").textContent = data.ratings.teaching;
+                    document.getElementById("evaluationRating").textContent = data.ratings.evaluation;
+                    document.getElementById("behaviourRating").textContent = data.ratings.behaviour;
+                    document.getElementById("internalsRating").textContent = data.ratings.internals;
+                    
+                    // Display star ratings
+                    document.getElementById("teachingStars").innerHTML = generateStars(data.ratings.teaching);
+                    document.getElementById("evaluationStars").innerHTML = generateStars(data.ratings.evaluation);
+                    document.getElementById("behaviourStars").innerHTML = generateStars(data.ratings.behaviour);
+                    document.getElementById("internalsStars").innerHTML = generateStars(data.ratings.internals);
+                    
+                    selectedNameData.classList.remove("hidden");
+                } else {
+                    errorMessage.textContent = data.error || "Professor not found or no ratings available.";
+                    errorMessage.classList.remove("hidden");
+                }
+            } catch (error) {
+                loadingMessage.classList.add("hidden");
+                errorMessage.textContent = "Network error. Please try again.";
+                errorMessage.classList.remove("hidden");
+            }
+        }
+
+        // Hide search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.classList.add("hidden");
+            }
+        });
+
+        // Load professors when page loads
+        document.addEventListener('DOMContentLoaded', loadAllProfessors);
+    </script>
+</body>
+</html>

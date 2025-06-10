@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate</title> 
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .star-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem; /* Spacing for larger stars */
+        }
+
+        .star {
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        .star::before {
+            content: '★';
+            position: absolute;
+            color: #e5e5e5;
+        }
+        .star::after {
+            content: '★';
+            position: absolute;
+            left: 0;
+            color: transparent;
+            transition: color 0.2s ease;
+        }
+        .star.active::after {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+        .star.hover::after,
+        .star:hover::after {
+            color: #fbbf24;
+            transform: scale(1.2);
+        }
+        .star:focus {
+            outline: none;
+        }
+        @media (max-width: 640px) {
+            .star {
+            font-size: 1.3rem;
+            padding: 0.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="font-sans bg-gray-800">
+    <div class="text-center m-5">
+        <h1 class="text-white font-bold text-4xl">RateYourProfessor</h1>
+    </div>
+
+    <div class="flex flex-nowrap container mt-10 mx-auto">
+        <a href="/professors/" class="w-1/2 m-3 bg-white p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+            <button class="font-bold">Reviews</button>
+        </a>
+
+        <a class="w-1/2 m-3 bg-yellow-200 p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+            <button class="font-bold">Rate</button>
+        </a>
+    </div>
+
+    <div class="flex justify-center items-start min-h-screen p-5">
+        <div class="container bg-white p-8 rounded-lg shadow-md w-full max-w-xl">
+            <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Search a professor 🔍</h1>
+            
+            <input type="text" id="searchInput" placeholder="Type a name to search..." autocomplete="off" class="w-full p-3 mb-4 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            
+            <div id="searchResults" class="search-results max-h-52 overflow-y-auto border border-gray-200 rounded-md mb-6 bg-gray-50 hidden"></div>
+    
+            <div class="mb-6">
+                <label for="professorDropdown" class="block text-sm font-medium text-gray-700 mb-2">Or select from all professors:</label>
+                <select id="professorDropdown" class="w-full p-3 border text-gray-500 border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="">-- Select a Professor --</option>
+                </select>
+                <div id="dropdownLoading" class="text-sm text-gray-500 mt-1 hidden">Loading professors...</div>
+            </div>
+
+            <div id="selectedNameData" class="selected-data border-t-2 border-blue-800 pt-6 mt-6 hidden">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Rate the selected Professor:</h2>
+                <p class="mb-2 text-gray-600">Name: <span id="personNameDisplay" class="font-bold">-</span></p>
+
+                <!-- Teaching Rating Box -->
+                <div class="bg-blue-50 rounded-xl p-4 mb-4 shadow-sm">
+                    <label for="teachingRating" class="block text-xl font-medium text-gray-700 mb-2">🎓 Teaching:</label> 
+                    <div class="flex items-center">
+                        <div class="star-rating" data-rating-input="teachingRating">
+                            <span class="star" data-value="1">&#9734;</span>
+                            <span class="star" data-value="2">&#9734;</span>
+                            <span class="star" data-value="3">&#9734;</span>
+                            <span class="star" data-value="4">&#9734;</span>
+                            <span class="star" data-value="5">&#9734;</span>
+                        </div>
+                        <input type="hidden" id="teachingRating" name="teaching" value="">
+                        <span id="teachingRatingValue" class="ml-2 text-gray-500">(0)</span>
+                    </div>
+                </div>
+
+                <!-- Evaluation Rating Box -->
+                <div class="bg-yellow-50 rounded-xl p-4 mb-4 shadow-sm">
+                    <label for="evaluationRating" class="block text-xl font-medium text-gray-700 mb-2">📑 Evaluation:</label>
+                    <div class="flex items-center">
+                        <div class="star-rating" data-rating-input="evaluationRating">
+                            <span class="star" data-value="1">&#9734;</span>
+                            <span class="star" data-value="2">&#9734;</span>
+                            <span class="star" data-value="3">&#9734;</span>
+                            <span class="star" data-value="4">&#9734;</span>
+                            <span class="star" data-value="5">&#9734;</span>
+                        </div>
+                        <input type="hidden" id="evaluationRating" name="evaluation" value="">
+                        <span id="evaluationRatingValue" class="ml-2 text-gray-500">(0)</span>
+                    </div>
+                </div>
+
+                <!-- Behaviour Rating Box -->
+                <div class="bg-green-50 rounded-xl p-4 mb-4 shadow-sm">
+                    <label for="behaviourRating" class="block text-xl font-medium text-gray-700 mb-2">😊 Behaviour:</label>
+                    <div class="flex items-center">
+                        <div class="star-rating" data-rating-input="behaviourRating">
+                            <span class="star" data-value="1">&#9734;</span>
+                            <span class="star" data-value="2">&#9734;</span>
+                            <span class="star" data-value="3">&#9734;</span>
+                            <span class="star" data-value="4">&#9734;</span>
+                            <span class="star" data-value="5">&#9734;</span>
+                        </div>
+                        <input type="hidden" id="behaviourRating" name="behaviour" value="">
+                        <span id="behaviourRatingValue" class="ml-2 text-gray-500">(0)</span>
+                    </div>
+                </div>
+
+                <!-- Internals Rating Box -->
+                <div class="bg-pink-50 rounded-xl p-4 mb-2 shadow-sm">
+                    <label for="internalsRating" class="block text-xl font-medium text-gray-700 mb-2">🏅 Internals:</label>
+                    <div class="flex items-center">
+                        <div class="star-rating" data-rating-input="internalsRating">
+                            <span class="star" data-value="1">&#9734;</span>
+                            <span class="star" data-value="2">&#9734;</span>
+                            <span class="star" data-value="3">&#9734;</span>
+                            <span class="star" data-value="4">&#9734;</span>
+                            <span class="star" data-value="5">&#9734;</span>
+                        </div>
+                        <input type="hidden" id="internalsRating" name="internals" value="">
+                        <span id="internalsRatingValue" class="ml-2 text-gray-500">(0)</span>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="text-center mt-6">
+                <button id="submitButton" class="text-white font-semibold border p-3 rounded-xl bg-blue-800 hover:bg-blue-900 disabled:bg-gray-400 disabled:cursor-not-allowed hidden transition duration-300 ease-in-out">
+                    SUBMIT YOUR RATING
+                </button>
+            </div>
+            
+            <div id="messageContainer" class="mt-4 hidden">
+                <div id="successMessage" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded hidden">
+                    Rating submitted successfully!
+                </div>
+                <div id="errorMessage" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded hidden">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const searchInput      = document.getElementById("searchInput");
+    const searchResults    = document.getElementById("searchResults");
+    const selectedNameData = document.getElementById("selectedNameData");
+    const personNameDisplay = document.getElementById("personNameDisplay");
+    const submitButton      = document.getElementById("submitButton");
+    const messageContainer  = document.getElementById("messageContainer");
+    const successMessage    = document.getElementById("successMessage");
+    const errorMessage      = document.getElementById("errorMessage");
+
+    let selectedName = null;
+    let searchTimeout = null;
+
+    // Auto-suggestion functionality
+    searchInput.addEventListener("input", () => {    
+        const query = searchInput.value.trim();
+        
+        // Clear previous timeout 
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+    
+        if (query.length < 1) {
+            searchResults.classList.add("hidden");
+            return;
+        }
+
+        // Debounce search requests
+        searchTimeout = setTimeout(async () => {
+            try {
+                searchResults.innerHTML = '';
+                
+                const response = await fetch(`/professors/search/?q=${encodeURIComponent(query)}`);
+                const data = await response.json();
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    // Add separator if we have existing professors
+                    const separatorDiv = document.createElement('div');
+                    separatorDiv.className = 'py-2 px-3 text-gray-500 text-sm font-medium bg-gray-100';
+                    separatorDiv.textContent = 'Existing professors:';
+                    searchResults.appendChild(separatorDiv);
+                    
+                    data.suggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.className = 'py-2 px-3 hover:bg-blue-100 cursor-pointer border-b border-gray-200';
+                        div.textContent = suggestion;
+                        div.addEventListener('click', () => selectProfessor(suggestion));
+                        searchResults.appendChild(div);
+                    });
+                } else {
+                    // Only show "Add new professor" if no suggestions are found
+                    const addNewDiv = document.createElement('div'); 
+                    addNewDiv.className = 'py-2 px-3 hover:bg-green-100 cursor-pointer text-green-600 font-medium border-b-2 border-green-200 bg-green-50';
+                    addNewDiv.innerHTML = `<strong>✅ Add "${query}" as a new professor</strong>`;
+                    addNewDiv.addEventListener('click', () => selectProfessor(query));
+                    searchResults.appendChild(addNewDiv); 
+                }
+                
+                searchResults.classList.remove("hidden");
+            } catch (error) {
+                console.error('Search error:', error);
+                // Even if search fails, show the "Add new" option
+                searchResults.innerHTML = '';
+                const addNewDiv = document.createElement('div');
+                addNewDiv.className = 'py-2 px-3 hover:bg-green-100 cursor-pointer text-green-600 font-medium bg-green-50';
+                addNewDiv.innerHTML = `<strong>✅ Add "${query}" as a new professor</strong>`;
+                addNewDiv.addEventListener('click', () => selectProfessor(query));
+                searchResults.appendChild(addNewDiv);
+                searchResults.classList.remove("hidden");
+            }
+        }, 200); // Reduced debounce time
+    });
+
+    function selectProfessor(name) {
+        selectedName = name;
+        personNameDisplay.innerText = selectedName;
+        selectedNameData.classList.remove("hidden");
+        submitButton.classList.remove("hidden");
+        searchResults.classList.add("hidden");
+        searchInput.value = "";
+        
+        // Clear any previous messages
+        messageContainer.classList.add("hidden");
+        successMessage.classList.add("hidden");
+        errorMessage.classList.add("hidden");
+        
+        // Clear rating inputs
+        document.getElementById("teachingRating").value = "";
+        document.getElementById("evaluationRating").value = "";
+        document.getElementById("behaviourRating").value = "";
+        document.getElementById("internalsRating").value = "";
+
+        // Reset star highlighting
+        document.querySelectorAll('.star-rating').forEach(ratingContainer => {
+            ratingContainer.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('active');
+                star.classList.remove('hover');
+            });
+            const ratingInputId = ratingContainer.dataset.ratingInput;
+            document.getElementById(ratingInputId + 'Value').textContent = '(0)';
+        });
+    }
+
+    // Hide search results when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.classList.add("hidden");
+        }
+    });
+
+    submitButton.addEventListener("click", async () => {
+        const teaching = document.getElementById("teachingRating").value;
+        const evaluation = document.getElementById("evaluationRating").value;
+        const behaviour = document.getElementById("behaviourRating").value;
+        const internals = document.getElementById("internalsRating").value;
+
+        // Validate all fields are filled
+        if (!teaching || !evaluation || !behaviour || !internals) {
+            messageContainer.classList.remove("hidden");
+            successMessage.classList.add("hidden");
+            errorMessage.classList.remove("hidden");
+            errorMessage.innerText = "Please fill in all rating fields.";
+            return;
+        }
+
+        // Validate ratings are between 1-5
+        const ratings = [teaching, evaluation, behaviour, internals];
+        if (ratings.some(rating => rating < 1 || rating > 5)) {
+            messageContainer.classList.remove("hidden");
+            successMessage.classList.add("hidden");
+            errorMessage.classList.remove("hidden");
+            errorMessage.innerText = "All ratings must be between 1 and 5.";
+            return;
+        }
+
+        const payload = {
+            name: selectedName,
+            teaching: parseInt(teaching),
+            evaluation: parseInt(evaluation),
+            behaviour: parseInt(behaviour),
+            internals: parseInt(internals)
+        };
+
+        // Disable submit button during submission
+        submitButton.disabled = true;
+        submitButton.textContent = "SUBMITTING...";
+
+        try {
+            const response = await fetch("/professors/submit_rating/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            messageContainer.classList.remove("hidden");
+
+            if (response.ok) {
+                successMessage.classList.remove("hidden");
+                errorMessage.classList.add("hidden");
+                
+                // Clear form after successful submission
+                selectedNameData.classList.add("hidden");
+                submitButton.classList.add("hidden");
+                selectedName = null;
+            } else {
+                successMessage.classList.add("hidden");
+                errorMessage.classList.remove("hidden");
+                errorMessage.innerText = result.error || "Something went wrong.";
+            }
+        } catch (error) {
+            messageContainer.classList.remove("hidden");
+            successMessage.classList.add("hidden");
+            errorMessage.classList.remove("hidden");
+            errorMessage.innerText = "Network error. Please try again.";
+        } finally {
+            // Re-enable submit button
+            submitButton.disabled = false;
+            submitButton.textContent = "SUBMIT YOUR RATING";
+        }
+    });
+
+    const professorDropdown = document.getElementById("professorDropdown");
+    const dropdownLoading = document.getElementById("dropdownLoading");
+
+    // Function to load all professors for the dropdown
+    async function loadAllProfessors() {
+        try {
+            dropdownLoading.classList.remove("hidden");
+            const response = await fetch('/professors/all/');
+            const data = await response.json();
+
+            if (data.professors && data.professors.length > 0) {
+                professorDropdown.innerHTML = '<option value="">-- Select a Professor --</option>'; // Clear existing options
+                data.professors.sort(); // Sort alphabetically
+                data.professors.forEach(professor => {
+                    const option = document.createElement('option');
+                    option.value = professor;
+                    option.textContent = professor;
+                    professorDropdown.appendChild(option);
+                });
+            } else {
+                professorDropdown.innerHTML = '<option value="">-- No Professors Found --</option>';
+            }
+        } catch (error) {
+            console.error('Error loading professors:', error);
+            professorDropdown.innerHTML = '<option value="">-- Error Loading Professors --</option>';
+        } finally {
+            dropdownLoading.classList.add("hidden");
+        }
+    }
+
+    // Event listener for dropdown selection
+    professorDropdown.addEventListener('change', (e) => {
+        const selectedProfessor = e.target.value;
+        if (selectedProfessor) {
+            selectProfessor(selectedProfessor);
+            // Clear search input and hide search results when using dropdown
+            searchInput.value = '';
+            searchResults.classList.add("hidden");
+        } else {
+            // Hide selected professor data if no selection
+            selectedNameData.classList.add("hidden");
+            submitButton.classList.add("hidden");
+            messageContainer.classList.add("hidden");
+        }
+    });
+
+    // Add this to your existing DOMContentLoaded listener or create one if it doesn't exist
+    document.addEventListener('DOMContentLoaded', loadAllProfessors);
+
+    // Ensure that when typing in search input, the dropdown selection is cleared
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.trim();
+        if (query.length > 0) {
+            professorDropdown.value = ''; // Clear dropdown selection
+        }
+        // ... rest of your existing search input logic ...
+    });
+
+    // STAR SYSTEM 
+    document.addEventListener('DOMContentLoaded', function() {
+        const starRatings = document.querySelectorAll('.star-rating');
+
+        starRatings.forEach(ratingContainer => {
+            const stars = ratingContainer.querySelectorAll('.star');
+            const ratingInputId = ratingContainer.dataset.ratingInput;
+            const ratingInput = document.getElementById(ratingInputId);
+            const ratingValueDisplay = document.getElementById(ratingInputId + 'Value');
+
+            stars.forEach((star, index) => { // Added index here
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.dataset.value); // The data-value is already 1-5 from HTML
+                    ratingInput.value = value;
+                    ratingValueDisplay.textContent = `(${value})`;
+
+                    // Highlight the selected star and the ones before it (left to right)
+                    stars.forEach(s => {
+                        s.classList.remove('active');
+                    });
+                    for (let i = 0; i < value; i++) {
+                        stars[i].classList.add('active'); // Changed from stars[(stars.length - 1) - i] to stars[i]
+                    }
+                });
+
+                star.addEventListener('mouseover', function() {
+                    const value = parseInt(this.dataset.value);
+                    stars.forEach(s => {
+                        s.classList.remove('hover');
+                    });
+                    for (let i = 0; i < value; i++) {
+                        stars[i].classList.add('hover'); // Changed from stars[(stars.length - 1) - i] to stars[i]
+                    }
+                });
+
+                ratingContainer.addEventListener('mouseout', function() {
+                    stars.forEach(s => {
+                        s.classList.remove('hover');
+                    });
+                    // Re-highlight the active stars based on the current value
+                    const currentValue = parseInt(ratingInput.value);
+                    if (currentValue > 0) {
+                        for (let i = 0; i < currentValue; i++) {
+                            stars[i].classList.add('active'); // Changed from stars[(stars.length - 1) - i] to stars[i]
+                        }
+                    }
+                });
+            });
+
+            // Initialize the display to (0)
+            ratingValueDisplay.textContent = '(0)';
+        });
+    });
+
+    </script>
+
+</body>
+</html>
