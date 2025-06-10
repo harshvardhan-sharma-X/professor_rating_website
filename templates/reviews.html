@@ -5,34 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reviews</title> 
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        }
+        
+        .site-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+    </style>
+
 </head>
+<body class="font-sans min-h-screen">
+    <header class="site-header"> 
+        <div class="text-center">
+            <h1 class="text-white font-bold text-4xl md:text-5xl">
+                RateYourProfessor
+                <span class="block text-lg text-blue-200 mt-2 font-normal">Vellore</span>
+            </h1>
+        </div>
+    </header>
+    
 
-<body class="font-sans bg-gray-800">
-    <div class="text-center m-5">
-        <h1 class="text-white font-bold text-4xl">RateYourProfessor</h1>
-    </div>
-
-    <div class="flex flex-nowrap container mt-10 mx-auto"> 
-        <a class="w-1/2 m-3 bg-yellow-200 p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+    <div class="flex flex-nowrap container mt-10 mx-auto max-w-2xl px-4"> 
+        <a class="nav-button w-1/2 m-3 bg-yellow-200 bg-opacity-95 p-6 rounded-lg shadow-lg text-center hover:bg-green-500 transition-all duration-300 ease-in-out">
             <button class="font-bold">Reviews</button> 
         </a>
 
-        <a href="/professors/rate/" class="w-1/2 m-3 bg-white p-6 rounded-lg shadow-md text-center hover:bg-green-500 transition duration-300 ease-in-out">
+        <a href="/professors/rate/" class="nav-button w-1/2 m-3 bg-white bg-opacity-95 p-6 rounded-lg shadow-lg text-center hover:bg-green-500 transition-all duration-300 ease-in-out">
             <button class="font-bold">Rate</button>
         </a>
     </div> 
 
     <div class="flex justify-center items-start min-h-screen p-5">
-        <div class="container bg-white p-8 rounded-lg shadow-md w-full max-w-3xl">
+        <div class="container bg-white bg-opacity-95 backdrop-blur-md p-8 rounded-xl shadow-xl w-full max-w-2xl transform transition-all duration-300 hover:shadow-2xl">
             <h1 class="text-3xl font-bold text-gray-800 text-center mb-6">Search a professor 🔍</h1>
 
-            <input type="text" id="searchInput" placeholder="Type a name to search..." autocomplete="off" class="w-full p-3 mb-4 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchInput" placeholder="Type a name to search..." autocomplete="off" class="w-full p-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-gray-400 hover:border-blue-300">
 
             <div id="searchResults" class="search-results max-h-52 overflow-y-auto border border-gray-200 rounded-md mb-4 bg-gray-50 hidden"></div>
     
             <div class="mb-6">
-                <label for="professorDropdown" class="block text-sm font-medium text-gray-700 mb-2">Or select from all professors:</label>
-                <select id="professorDropdown" class="w-full p-3 border text-gray-500 border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <label for="professorDropdown" class="block text-sm font-medium text-gray-700 my-2">Or select from all professors:</label>
+                <select id="professorDropdown" class="w-full p-4 border-2 border-gray-200 rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white appearance-none cursor-pointer hover:border-blue-300 transition-all duration-300">
                     <option value="">-- Select a Professor --</option>
                 </select>
                 <div id="dropdownLoading" class="text-sm text-gray-500 mt-1 hidden">Loading professors...</div>
@@ -47,7 +87,7 @@
                         <p class="mb-2 text-gray-600">Total Ratings: <span id="totalRatings" class="font-semibold text-blue-600">0</span></p>
                     </div>
                     
-                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                    <div class="bg-blue-100 p-4 rounded-lg text-center">
                         <div class="text-3xl font-bold text-blue-800" id="overallRating">0.0</div>
                         <div class="text-sm text-gray-600">Overall Rating</div>
                     </div>
@@ -55,13 +95,13 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between bg-green-50 p-3 rounded-lg">
+                        <div class="flex items-center justify-between bg-green-100 p-3 rounded-lg">
                             <span class="text-gray-700">🎓 Teaching:</span>
                             <div class="flex items-center flex-shrink-0 text-xl" id="teachingStars"></div>
                             <span id="teachingRating" class="font-semibold text-green-700 ml-2">0.0</span>
                         </div>
                         
-                        <div class="flex items-center justify-between bg-yellow-50 p-3 rounded-lg">
+                        <div class="flex items-center justify-between bg-yellow-100 p-3 rounded-lg">
                             <span class="text-gray-700">📑 Evaluation:</span>
                             <div class="flex items-center flex-shrink-0 text-xl" id="evaluationStars"></div>
                             <span id="evaluationRating" class="font-semibold text-yellow-700 ml-2">0.0</span>
@@ -69,13 +109,13 @@
                     </div>
                     
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between bg-purple-50 p-3 rounded-lg">
+                        <div class="flex items-center justify-between bg-purple-100 p-3 rounded-lg">
                             <span class="text-gray-700">😊 Behaviour:</span>
                             <div class="flex items-center flex-shrink-0 text-xl" id="behaviourStars"></div>
                             <span id="behaviourRating" class="font-semibold text-purple-700 ml-2">0.0</span>
                         </div>
                         
-                        <div class="flex items-center justify-between bg-orange-50 p-3 rounded-lg">
+                        <div class="flex items-center justify-between bg-orange-100 p-3 rounded-lg">
                             <span class="text-gray-700">🏅 Internals:</span>
                             <div class="flex items-center flex-shrink-0 text-xl" id="internalsStars"></div>
                             <span id="internalsRating" class="font-semibold text-orange-700 ml-2">0.0</span>
@@ -274,5 +314,20 @@
         // Load professors when page loads
         document.addEventListener('DOMContentLoaded', loadAllProfessors);
     </script>
+
+    <div class="w-full bg-white bg-opacity-10 backdrop-blur-md py-4">
+        <div class="container mx-auto text-center text-white">
+            <p class="text-sm">
+                Made By 
+                <a href="https://www.linkedin.com/in/harshvardhan-sharma-bb2708286" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="font-medium text-blue-200 hover:text-blue-300 transition-colors duration-300 border-b border-blue-200 hover:border-blue-300">
+                    Harshvardhan Sharma 
+                </a>
+            </p>
+        </div>
+    </div>
+
 </body>
 </html>

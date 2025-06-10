@@ -108,13 +108,3 @@ def get_all_professors(request):
         return JsonResponse({'error': str(e)}, status=500) 
     
 
-
-
-
-
-
-
-
-
-
-
