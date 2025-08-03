@@ -241,11 +241,13 @@
 
 <body class="min-h-screen">
     <header class="site-header">
-        <div class="pl-7 py-6">
-            <h1 class="text-gray-900 font-bold text-3xl md:text-4xl tracking-tight">
-                RateYourProfessor
-                <span class="block text-sm text-gray-500 mt-1 font-medium tracking-wide uppercase">Vellore Institute</span>
-            </h1>
+        <div class="flex items-center justify-between pl-7 pr-7 py-6"> <h1 class="text-gray-900 font-bold text-3xl md:text-4xl tracking-tight">
+            RateYourProfessor
+            <span class="block text-sm text-gray-500 mt-1 font-medium tracking-wide uppercase">Vellore Institute</span>
+        </h1>
+        <button id="logoutButton" class="text-gray-600 hover:text-red-500 transition-colors duration-200 text-sm font-medium focus:outline-none">
+            Logout
+        </button>
         </div>
     </header>
     
@@ -451,7 +453,7 @@
                 searchResults.innerHTML = '';
                 
                 const response = await fetch(`/professors/search/?q=${encodeURIComponent(query)}`);
-                const data = await response.json();
+                const data = await response.json(); 
                 
                 if (data.suggestions && data.suggestions.length > 0) {
                     // Add separator if we have existing professors
@@ -663,6 +665,7 @@
     // STAR SYSTEM 
     document.addEventListener('DOMContentLoaded', function() {
         const starRatings = document.querySelectorAll('.star-rating');
+        const logoutButton = document.getElementById('logoutButton');
 
         starRatings.forEach(ratingContainer => {
             const stars = ratingContainer.querySelectorAll('.star');
@@ -712,6 +715,20 @@
             // Initialize the display to (0)
             ratingValueDisplay.textContent = '(0)';
         });
+
+        if (logoutButton) {
+        logoutButton.addEventListener('click', function() {
+            // In a real application, you would typically:
+            // 1. Send a request to your backend to invalidate the user's session/token.
+            //    Example: fetch('/api/logout', { method: 'POST' });
+            // 2. Clear any client-side stored authentication tokens (e.g., from localStorage or sessionStorage).
+            //    Example: localStorage.removeItem('authToken');
+            // 3. Redirect the user to the login page or home page.
+
+            alert('You have been logged out.'); // For demonstration purposes
+            window.location.href = '/login'; // Redirect to a login page (replace with your actual login URL)
+            });
+        }
     });
 
     </script>

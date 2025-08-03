@@ -13,6 +13,19 @@ def reviews_view(request):
 def rate_view(request):
     return render(request, 'rate.html')
 
+@csrf_exempt  # For demo only; use CSRF tokens in production!
+def login_view(request):
+    if request.method == 'POST':
+        vit_email = request.POST.get('vitEmail')
+        reg_no = request.POST.get('registrationNumber')
+        # Replace this with your actual authentication logic
+        if vit_email == 'test@vitstudent.ac.in' and reg_no == '21BCE1234':
+            return JsonResponse({'success': True, 'message': 'Verification successful! Redirecting to reviews...'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid VIT Email ID or Registration Number.'})
+    return render(request, 'login.html')
+
+
 @csrf_exempt
 def submit_rating(request):
     if request.method == 'POST':
